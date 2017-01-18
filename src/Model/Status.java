@@ -2,15 +2,21 @@ package Model;
 
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
+import DaoImpl.ProduktDaoImpl;
+import DaoImpl.ZamowienieDaoImpl;
 import ModelEnum.StatusEnum;
 
+@DatabaseTable(daoClass = ZamowienieDaoImpl.class)
 public class Status {
-	@DatabaseField(id = true, dataType = DataType.ENUM_STRING)
-	StatusEnum status;
+	@DatabaseField(generatedId = true)
+	private Integer id;
+	@DatabaseField(dataType = DataType.ENUM_STRING)
+	private StatusEnum status;
 
 	public Status() {
-
+		super();
 	}
 
 	public Status(StatusEnum status) {
@@ -18,4 +24,11 @@ public class Status {
 		this.status = status;
 	}
 
+	public StatusEnum getStatus() {
+		return status;
+	}
+
+	public void setStatus(StatusEnum status) {
+		this.status = status;
+	}
 }

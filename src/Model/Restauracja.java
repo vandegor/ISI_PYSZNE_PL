@@ -3,25 +3,19 @@ package Model;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import DaoImpl.ProduktDaoImpl;
+import DaoImpl.RestauracjaDaoImpl;
+import DaoImpl.RestauracjaDaoImpl;
 
-@DatabaseTable(daoClass = ProduktDaoImpl.class)
-public class Produkt {
+@DatabaseTable(daoClass = RestauracjaDaoImpl.class)
+public class Restauracja {
 	@DatabaseField(generatedId = true)
 	private Integer id;
 	@DatabaseField
 	private String nazwa;
-	@DatabaseField
-	private Double cena;
 
-	public Produkt() {
-		super();
-	}
-
-	public Produkt(String nazwa, Double cena) {
+	public Restauracja(String nazwa) {
 		super();
 		this.nazwa = nazwa;
-		this.cena = cena;
 	}
 
 	public Integer getId() {
@@ -40,12 +34,8 @@ public class Produkt {
 		this.nazwa = nazwa;
 	}
 
-	public Double getCena() {
-		return cena;
-	}
-
-	public void setCena(Double cena) {
-		this.cena = cena;
+	public Restauracja() {
+		super();
 	}
 
 }
