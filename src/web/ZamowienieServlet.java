@@ -10,6 +10,9 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet(name="zamowienieServlet", urlPatterns="/zamowienie")
 public class ZamowienieServlet extends HttpServlet {
+	
+	private static final long serialVersionUID = -9172378032130544326L;
+
 @Override
 protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 	req.getRequestDispatcher("WEB-INF/view/zamowienie.jsp").include(req,resp);

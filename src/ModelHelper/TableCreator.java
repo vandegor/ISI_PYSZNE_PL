@@ -1,60 +1,76 @@
 package ModelHelper;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 
 import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.dao.DaoManager;
-import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
-import DaoImpl.LokalDaoImpl;
-import DaoImpl.PozycjaZamowieniaDaoImpl;
-import DaoImpl.ProduktDaoImpl;
-import DaoImpl.RestauracjaDaoImpl;
-import DaoImpl.StatusDaoImpl;
-import DaoImpl.ZamowienieDaoImpl;
-import DaoInterface.LokalDao;
-import DaoInterface.PozycjaZamowieniaDao;
-import DaoInterface.ProduktDao;
-import DaoInterface.RestauracjaDao;
-import DaoInterface.StatusDao;
-import DaoInterface.ZamowienieDao;
-import Model.Lokal;
-import Model.PozycjaZamowienia;
-import Model.Produkt;
-import Model.Restauracja;
-import Model.Status;
-import Model.Zamowienie;
+import DaoImpl.AdresDaoImpl;
+import DaoImpl.Bank.KontoDaoImpl;
+import DaoImpl.Bank.OsobaFizycznaDaoImpl;
+import DaoImpl.Bank.OsobaPrawnaDaoImpl;
+import DaoImpl.Bank.TranzakcjaDaoImpl;
+import DaoImpl.Portal.RestauracjaDaoImpl;
+import DaoImpl.Restauracja.LokalDaoImpl;
+import DaoImpl.Restauracja.PozycjaZamowieniaDaoImpl;
+import DaoImpl.Restauracja.ProduktDaoImpl;
+import DaoImpl.Restauracja.StatusDaoImpl;
+import DaoImpl.Restauracja.ZamowienieDaoImpl;
+import DaoInterface.AdresDao;
+import DaoInterface.Bank.KontoDao;
+import DaoInterface.Bank.OsobaFizycznaDao;
+import DaoInterface.Bank.OsobaPrawnaDao;
+import DaoInterface.Bank.TranzakcjaDao;
+import DaoInterface.Portal.RestauracjaDao;
+import DaoInterface.Restauracja.LokalDao;
+import DaoInterface.Restauracja.PozycjaZamowieniaDao;
+import DaoInterface.Restauracja.ProduktDao;
+import DaoInterface.Restauracja.StatusDao;
+import DaoInterface.Restauracja.ZamowienieDao;
+import Model.Adres;
+import Model.Portal.Restauracja;
+import Model.Restauracja.Lokal;
+import Model.Restauracja.Produkt;
+import Model.Restauracja.Status;
 import ModelEnum.StatusEnum;
 
 public class TableCreator {
-	ConnectionSource connectionSource = getConnectionSource();
+	ConnectionSource connectionSource = ConnectionSourceEnum.ISI_PYSZNE_PL.getConnectionSource();
 	ProduktDao productDao = new ProduktDaoImpl(connectionSource);
 	StatusDao statusDao = new StatusDaoImpl(connectionSource);
 	ZamowienieDao zamowienieDao = new ZamowienieDaoImpl(connectionSource);
 	PozycjaZamowieniaDao pozycjaZamowieniaDao = new PozycjaZamowieniaDaoImpl(connectionSource);
 	LokalDao lokalDao = new LokalDaoImpl(connectionSource);
+	AdresDao adresDao = new AdresDaoImpl(connectionSource);
+	OsobaFizycznaDao osobaFizycznaDao = new OsobaFizycznaDaoImpl(connectionSource);
+	OsobaPrawnaDao osobaPrawna = new OsobaPrawnaDaoImpl(connectionSource);
+	KontoDao kontoDao = new KontoDaoImpl(connectionSource);
+	TranzakcjaDao tranzakcjaDao = new TranzakcjaDaoImpl(connectionSource);
 	RestauracjaDao restauracjaDao = new RestauracjaDaoImpl(connectionSource);
 
+	ArrayList<Dao<?, ?>> listaDao = new ArrayList<Dao<?, ?>>();
+
 	public TableCreator() throws SQLException {
-
-	}
-
-	public ConnectionSource getConnectionSource() throws SQLException {
-		String databaseUrl = "jdbc:sqlite:D:\\workspace_mars\\ISI_PYSZNE_PL_T\\ISI_PYSZNE_PL.sqlite";
-		return new JdbcConnectionSource(databaseUrl);
+		listaDao.add(productDao);
+		listaDao.add(statusDao);
+		listaDao.add(zamowienieDao);
+		listaDao.add(pozycjaZamowieniaDao);
+		listaDao.add(lokalDao);
+		listaDao.add(adresDao);
+		listaDao.add(osobaFizycznaDao);
+		listaDao.add(osobaPrawna);
+		listaDao.add(kontoDao);
+		listaDao.add(tranzakcjaDao);
+		listaDao.add(restauracjaDao);
 	}
 
 	public TableCreator createTablesIfNotExists() throws SQLException {
-		TableUtils.createTableIfNotExists(connectionSource, productDao.getDataClass());
-		TableUtils.createTableIfNotExists(connectionSource, statusDao.getDataClass());
-		TableUtils.createTableIfNotExists(connectionSource, zamowienieDao.getDataClass());
-		TableUtils.createTableIfNotExists(connectionSource, pozycjaZamowieniaDao.getDataClass());
-		TableUtils.createTableIfNotExists(connectionSource, lokalDao.getDataClass());
+		for (Dao<?, ?> dao : listaDao) {
+			TableUtils.createTableIfNotExists(connectionSource, dao.getDataClass());
+		}
 		return this;
 	}
 
@@ -79,24 +95,28 @@ public class TableCreator {
 		productDao.create(new Produkt("Salsicia 40", 25.0));
 		productDao.create(new Produkt("Salsicia 50", 35.0));
 
-		lokalDao.create(new Lokal("daGrasso", "Warszawa", "Krucza", "11123", 13, 13));
+		Adres adres = new Adres("Warszawa", "Krucza", "11123", 13, 13);
+		adresDao.create(adres);
+		lokalDao.create(new Lokal("daGrasso", adres));
+		adres = new Adres("Warszawa", "Kaliskiego", "11123", 10, null);
+		adresDao.create(adres);
+		adres = new Adres("Warszawa", "Kaliskiego", "11123", 10, null);
+		adresDao.create(adres);
 
 		for (StatusEnum statusEnum : Arrays.asList(StatusEnum.values())) {
 			statusDao.create(new Status(statusEnum));
 		}
+
+		restauracjaDao.create(new Restauracja("daGrasso"));
+		restauracjaDao.create(new Restauracja("dominium"));
+
 		return this;
 	}
 
 	public TableCreator createTablesWithRawSQL() throws SQLException {
-		productDao.executeRaw(
-				"CREATE TABLE `produkt` (`id` INTEGER PRIMARY KEY AUTOINCREMENT ,  `nazwa` VARCHAR ,  `cena` DOUBLE PRECISION )");
-		statusDao.executeRaw("CREATE TABLE `status` (`id` INTEGER PRIMARY KEY AUTOINCREMENT ,  `status` VARCHAR )");
-		zamowienieDao.executeRaw(
-				"CREATE TABLE `zamowienie` (`id` INTEGER PRIMARY KEY AUTOINCREMENT ,  `status_id` INTEGER NOT NULL ,  `dataZamowienia` TIMESTAMP ,  `dataDostawy` TIMESTAMP ,   FOREIGN KEY(status_id) REFERENCES status(id))");
-		pozycjaZamowieniaDao.executeRaw(
-				"CREATE TABLE `pozycjazamowienia` (`id` INTEGER PRIMARY KEY AUTOINCREMENT ,  `zamowienie_id` INTEGER NOT NULL ,  `nrPozycji` INTEGER NOT NULL ,  `produkt_id` INTEGER NOT NULL ,  `ilosc` INTEGER NOT NULL ,  `cenaJednostkowa` INTEGER NOT NULL ,  FOREIGN KEY(produkt_id) REFERENCES produkt(id),  FOREIGN KEY(zamowienie_id) REFERENCES zamowienie(id))");
-		lokalDao.executeRaw(
-				"CREATE TABLE `lokal` (`id` INTEGER PRIMARY KEY AUTOINCREMENT ,  `nazwaLokalu` VARCHAR ,  `miejscowosc` VARCHAR ,  `ulica` VARCHAR ,  `kodpocztowy` VARCHAR ,  `numerBudynku` INTEGER ,  `numerlokalu` INTEGER )");
+		for (TableCreateStrings createString : TableCreateStrings.values()) {
+			productDao.executeRaw(createString.getCreateString());
+		}
 		return this;
 
 	}

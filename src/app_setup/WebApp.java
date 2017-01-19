@@ -1,7 +1,6 @@
 package app_setup;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Date;
 
 import javax.servlet.ServletException;

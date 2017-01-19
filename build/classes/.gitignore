@@ -1,5 +1,5 @@
 /Model/
-/ModelHelper/
-/app_setup/
 /DaoInterface/
 /DaoImpl/
+/ModelHelper/
+/web/
